@@ -31,9 +31,8 @@ class SymptomButton extends StatelessWidget {
           ),
           child: Image.asset(
             imagePath,
-            width: 32,
-            height: 32,
-            color: AppColors.primaryColor,
+            width: 55,
+            height: 55,
           ),
         ),
         const SizedBox(height: 8),

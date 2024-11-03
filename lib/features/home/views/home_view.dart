@@ -9,15 +9,15 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final symptoms = [
-      {'name': '감기', 'image': 'assets/images/cold.png'},
-      {'name': '스트레스', 'image': 'assets/images/stress.png'},
-      {'name': '열', 'image': 'assets/images/fever.png'},
-      {'name': '어지럼증', 'image': 'assets/images/dizzy.png'},
-      {'name': '두통', 'image': 'assets/images/headache.png'},
-      {'name': '집중력', 'image': 'assets/images/focus.png'},
-      {'name': '코피', 'image': 'assets/images/nosebleed.png'},
-      {'name': '생리통', 'image': 'assets/images/menstrual.png'},
-      {'name': '빈뇨', 'image': 'assets/images/urination.png'},
+      {'name': '감기', 'image': 'assets/icon_images/cold.png'},
+      {'name': '스트레스', 'image': 'assets/icon_images/stress.png'},
+      {'name': '열', 'image': 'assets/icon_images/fever.png'},
+      {'name': '어지럼증', 'image': 'assets/icon_images/dizzy.png'},
+      {'name': '두통', 'image': 'assets/icon_images/headache.png'},
+      {'name': '집중력', 'image': 'assets/icon_images/focus.png'},
+      {'name': '코피', 'image': 'assets/icon_images/nosebleed.png'},
+      {'name': '생리통', 'image': 'assets/icon_images/period.png'},
+      {'name': '빈뇨', 'image': 'assets/icon_images/urine.png'},
     ];
 
     return Scaffold(
@@ -56,7 +56,7 @@ class HomeView extends StatelessWidget {
                   crossAxisCount: 3,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 0.75,
                 ),
                 itemCount: symptoms.length,
                 itemBuilder: (context, index) {
