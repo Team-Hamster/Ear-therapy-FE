@@ -3,6 +3,7 @@ import 'package:ear_fe/core/constants/colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class UploadView extends StatefulWidget {
   final String symptomName;
@@ -61,13 +62,28 @@ class _UploadViewState extends State<UploadView> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _image = File(image.path);
-      });
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      
+      if (image != null) {
+        setState(() {
+          _image = File(image.path);
+        });
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context); // 바텀시트 닫기
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('이미지를 불러오는데 실패했습니다.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
@@ -129,7 +145,7 @@ class _UploadViewState extends State<UploadView> {
               child: GestureDetector(
                 onTap: () => _pickImage(),
                 child: Container(
-                  height: 120, // 고정 높이 설정
+                  height: 120,
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -144,7 +160,7 @@ class _UploadViewState extends State<UploadView> {
                     ],
                   ),
                   child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬 추가
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.photo_library,
@@ -155,7 +171,7 @@ class _UploadViewState extends State<UploadView> {
                       Text(
                         '파일 선택',
                         style: TextStyle(
-                          fontSize: 14, // 텍스트 크기 감소
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
