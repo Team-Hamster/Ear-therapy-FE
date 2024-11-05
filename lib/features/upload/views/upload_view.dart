@@ -225,7 +225,7 @@ class _UploadViewState extends State<UploadView> {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1C4E9),
+                    color: AppColors.secondaryColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
@@ -239,7 +239,7 @@ class _UploadViewState extends State<UploadView> {
                             const Text(
                               '사진 업로드',
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -259,6 +259,7 @@ class _UploadViewState extends State<UploadView> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 10),
                         const Divider(
                           color: Colors.grey,
                           height: 20,
