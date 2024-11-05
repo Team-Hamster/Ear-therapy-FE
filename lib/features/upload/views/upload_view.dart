@@ -294,22 +294,22 @@ class _UploadViewState extends State<UploadView> {
                         const Spacer(), // SizedBox 대신 Spacer 사용
                         Center(
                           child: Container(
-                            width: 60, // 원형 버튼 크기 지정
-                            height: 60,
-                            margin: const EdgeInsets.only(bottom: 30), // 하단 여백 추가
+                            width: 70,
+                            height: 70,
+                            margin: const EdgeInsets.only(bottom: 40),
                             decoration: const BoxDecoration(
-                              shape: BoxShape.circle, // 완벽한 원형으로 지정
+                              shape: BoxShape.circle,
                               color: AppColors.primaryColor,
                             ),
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () => _showBottomSheet(context),
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(35),
                                 child: const Icon(
                                   Icons.camera_alt,
                                   color: Colors.white,
-                                  size: 30,
+                                  size: 35,
                                 ),
                               ),
                             ),
