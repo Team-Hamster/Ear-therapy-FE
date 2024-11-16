@@ -4,6 +4,7 @@ import 'package:ear_fe/database/database_helper.dart';
 import 'package:intl/intl.dart' show DateFormat;  // DateFormat만 import
 import 'dart:math' as math;
 import 'dart:ui' show TextDirection;  // 추가
+import 'result_view.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
@@ -16,11 +17,16 @@ class _HistoryViewState extends State<HistoryView> {
   @override
   void initState() {
     super.initState();
-    _checkData();
+    DatabaseHelper.instance.printAllData(); // 사용자 데이터 출력
   }
 
   Future<void> _checkData() async {
     await DatabaseHelper.instance.printAllData(); // 데이터베이스의 모든 데이터 출력
+  }
+
+  void addNewSymptom() {
+    // '어지럼증' 증상 추가
+    DatabaseHelper.instance.insertSymptom('어지럼증', '2024.11.18', null, null);
   }
 
   @override
@@ -112,32 +118,32 @@ class _HistoryViewState extends State<HistoryView> {
                                   
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: index % 2 == 0 ? Colors.white : AppColors.backgroundColor,
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // Result 화면으로 이동
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ResultView(resultId: result['id']),
                                           ),
-                                        ],
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            // 상세 페이지로 이동하는 로직
-                                          },
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: index % 2 == 0 ? Colors.white : AppColors.backgroundColor,
                                           borderRadius: BorderRadius.circular(12),
-                                          highlightColor: Colors.grey.withOpacity(0.1),
-                                          splashColor: AppColors.primaryColor.withOpacity(0.05),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 16,
-                                              horizontal: 24,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
                                             ),
+                                          ],
+                                        ),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                                             child: Row(
                                               children: [
                                                 Expanded(

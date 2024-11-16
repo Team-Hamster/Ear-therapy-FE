@@ -146,6 +146,84 @@ class DatabaseHelper {
   Future<void> initializeDatabase() async {
     final db = await database;
     await insertInitialData();
+    await insertDummyResults();
+  }
+
+  // 더미 데이터 삽입 메서드
+  Future<void> insertDummyResults() async {
+    final db = await database;
+
+    // '감기' 증상의 id 조회
+    final List<Map<String, dynamic>> coldSymptomMaps = await db.query(
+      'symptoms',
+      where: 'name = ?',
+      whereArgs: ['감기'],
+    );
+
+    // '열' 증상의 id 조회
+    final List<Map<String, dynamic>> feverSymptomMaps = await db.query(
+      'symptoms',
+      where: 'name = ?',
+      whereArgs: ['열'],
+    );
+
+    // '어지럼증' 증상의 id 조회
+    final List<Map<String, dynamic>> dizzinessSymptomMaps = await db.query(
+      'symptoms',
+      where: 'name = ?',
+      whereArgs: ['어지럼증'],
+    );
+
+    // 감기 증상 추가
+    if (coldSymptomMaps.isNotEmpty) {
+      final int symptomId = coldSymptomMaps.first['id'];
+      await db.insert(
+        'results',
+        {
+          'user_id': 1,
+          'symptom_id': symptomId,
+          'date': DateTime(2024, 11, 16).toIso8601String(),
+          'title': '감기 증상',
+          'memo': '감기 증상이 나타났습니다.',
+          'photo': null,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    // 열 증상 추가
+    if (feverSymptomMaps.isNotEmpty) {
+      final int symptomId = feverSymptomMaps.first['id'];
+      await db.insert(
+        'results',
+        {
+          'user_id': 1,
+          'symptom_id': symptomId,
+          'date': DateTime(2024, 11, 17).toIso8601String(),
+          'title': '발열 증상',
+          'memo': '열이 올라왔습니다.',
+          'photo': null,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    // 어지럼증 증상 추가
+    if (dizzinessSymptomMaps.isNotEmpty) {
+      final int symptomId = dizzinessSymptomMaps.first['id'];
+      await db.insert(
+        'results',
+        {
+          'user_id': 1,
+          'symptom_id': symptomId,
+          'date': DateTime(2024, 11, 18).toIso8601String(),
+          'title': '어지럼증',
+          'memo': '어지럼증이 발생했습니다.',
+          'photo': null,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 
   // 모든 증상 조회
@@ -215,34 +293,6 @@ class DatabaseHelper {
     print(results);
   }
 
-  // 새로운 진단 결과 추가 메서드
-  Future<void> insertNewResult() async {
-    final db = await database;
-
-    // '열' 증상의 id 조회
-    final List<Map<String, dynamic>> symptomMaps = await db.query(
-      'symptoms',
-      where: 'name = ?',
-      whereArgs: ['열'],
-    );
-    
-    if (symptomMaps.isNotEmpty) {
-      final int symptomId = symptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1,
-          'symptom_id': symptomId,
-          'date': DateTime(2024, 11, 17).toIso8601String(),
-          'title': '발열증상',
-          'memo': '감기때문인지 열이 올라와서 패치를 15시경 패치를 붙였더니 열이 좀 내려갔다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-  }
-
   // 데이터베이스 삭제
   Future<void> deleteDatabase() async {
     final dbPath = await getDatabasesPath();
@@ -256,5 +306,48 @@ class DatabaseHelper {
     await deleteDatabase();
     await database;  // 새로운 데이터베이스 생성
     await insertInitialData();  // 초기 데이터 한 번만 삽입
+  }
+
+  Future<void> insertSymptom(String symptom, String date, String? title, String? content) async {
+    final db = await database;
+
+    // 새로운 증상 데이터 추가
+    await db.insert(
+        'symptoms',
+        {
+            'symptom': symptom,
+            'date': date,
+            'title': title,
+            'content': content,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> insertNewResult() async {
+    final db = await database;
+
+    // '감기' 증상의 id 조회
+    final List<Map<String, dynamic>> symptomMaps = await db.query(
+      'symptoms',
+      where: 'name = ?',
+      whereArgs: ['감기'],
+    );
+
+    if (symptomMaps.isNotEmpty) {
+      final int symptomId = symptomMaps.first['id'];
+      await db.insert(
+        'results',
+        {
+          'user_id': 1,
+          'symptom_id': symptomId,
+          'date': DateTime.now().toIso8601String(),
+          'title': '감기 증상',
+          'memo': '감기 증상이 나타났습니다.',
+          'photo': null,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 } 

@@ -17,8 +17,5 @@ void main() async {
     await prefs.setBool('first_run', false);  // 최초 실행 표시
   }
   
-  // 새로운 결과 데이터 삽입
-  await dbHelper.insertNewResult();
-  
   runApp(const App());
 }
