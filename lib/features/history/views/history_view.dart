@@ -112,7 +112,7 @@ class _HistoryViewState extends State<HistoryView> {
                                     padding: const EdgeInsets.only(bottom: 12),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: index % 2 == 0 ? Colors.white : AppColors.backgroundColor,
                                         borderRadius: BorderRadius.circular(12),
                                         boxShadow: [
                                           BoxShadow(
@@ -130,26 +130,44 @@ class _HistoryViewState extends State<HistoryView> {
                                           },
                                           borderRadius: BorderRadius.circular(12),
                                           child: Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                              horizontal: 24,
+                                            ),
+                                            child: Row(
                                               children: [
-                                                Text(
-                                                  result['symptom_name'],
-                                                  style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black87,
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        result['symptom_name'],
+                                                        style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        formattedDate,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black54,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  formattedDate,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.black54,
+                                                if (result['title'] != null || result['memo'] != null)
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 8),
+                                                    child: Image.asset(
+                                                      'assets/icon_images/note.png',
+                                                      width: 20,
+                                                      height: 20,
+                                                    ),
                                                   ),
-                                                ),
                                               ],
                                             ),
                                           ),
@@ -158,6 +176,7 @@ class _HistoryViewState extends State<HistoryView> {
                                     ),
                                   );
                                 },
+                                physics: const BouncingScrollPhysics(),
                               );
                             },
                           ),
