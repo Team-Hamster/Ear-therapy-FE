@@ -132,7 +132,7 @@ class DatabaseHelper {
         {
           'user_id': 1,
           'symptom_id': symptomId,
-          'date': DateTime(2023, 11, 16).toIso8601String(),
+          'date': DateTime(2024, 11, 16).toIso8601String(),
           'title': '이침 후 첫 기록',
           'memo': '어제 저녁 혈자리에 패치를 붙이고 잤더니 감기 증상이 호전되었다.',
           'photo': null,
@@ -233,7 +233,7 @@ class DatabaseHelper {
         {
           'user_id': 1,
           'symptom_id': symptomId,
-          'date': DateTime(2023, 11, 17).toIso8601String(),
+          'date': DateTime(2024, 11, 17).toIso8601String(),
           'title': '발열증상',
           'memo': '감기때문인지 열이 올라와서 패치를 15시경 패치를 붙였더니 열이 좀 내려갔다.',
           'photo': null,

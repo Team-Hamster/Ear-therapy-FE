@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/database/database_helper.dart';
-import 'package:intl/intl.dart';  // 날짜 포맷을 위해 추가
+import 'package:intl/intl.dart' show DateFormat;  // DateFormat만 import
+import 'dart:math' as math;
+import 'dart:ui' show TextDirection;  // 추가
 
 class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
@@ -106,7 +108,7 @@ class _HistoryViewState extends State<HistoryView> {
                                 itemBuilder: (context, index) {
                                   final result = snapshot.data![index];
                                   final date = DateTime.parse(result['date']);
-                                  final formattedDate = DateFormat('yyyy.MM.dd').format(date);
+                                  final formattedDate = DateFormat('yy.MM.dd EEE').format(date);
                                   
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
@@ -129,6 +131,8 @@ class _HistoryViewState extends State<HistoryView> {
                                             // 상세 페이지로 이동하는 로직
                                           },
                                           borderRadius: BorderRadius.circular(12),
+                                          highlightColor: Colors.grey.withOpacity(0.1),
+                                          splashColor: AppColors.primaryColor.withOpacity(0.05),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 16,
@@ -150,7 +154,7 @@ class _HistoryViewState extends State<HistoryView> {
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        formattedDate,
+                                                        formattedDate.toUpperCase(),
                                                         style: const TextStyle(
                                                           fontSize: 14,
                                                           color: Colors.black54,
