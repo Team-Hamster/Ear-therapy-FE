@@ -281,4 +281,12 @@ class DatabaseHelper {
 
     return resultId;
   }
+  Future<void> deleteResult(int id) async {
+    final db = await database;
+    await db.delete(
+      'results',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
