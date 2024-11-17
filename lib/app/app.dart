@@ -14,6 +14,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.backgroundColor,
         useMaterial3: true,
+        fontFamily: 'KingSejongInstitute',
       ),
       home: const MainScreen(),
     );

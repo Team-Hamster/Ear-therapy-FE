@@ -95,7 +95,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-
+  fonts:
+    - family: KingSejongInstitute                # 폰트 패밀리 이름
+      fonts:
+        - asset: assets/fonts/KingSejongInstitute-Regular.ttf
+        - asset: assets/fonts/KingSejongInstitute-Bold.ttf
+          weight: 700
   assets:
     - assets/icon_images/
     - assets/search_images/
