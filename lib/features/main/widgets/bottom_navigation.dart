@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
-import 'package:ear_fe/features/home/views/home_view.dart';
-import 'package:ear_fe/features/search/views/search_view.dart';
-import 'package:ear_fe/features/history/views/history_view.dart';
-import 'package:ear_fe/features/profile/views/profile_view.dart';
 
 class BottomNavigation extends StatelessWidget {
   final int currentIndex;
+  final Function(int) onTap;
 
   const BottomNavigation({
     super.key,
-    this.currentIndex = 0,
+    required this.currentIndex,
+    required this.onTap,
   });
 
   @override
@@ -38,52 +36,12 @@ class BottomNavigation extends StatelessWidget {
         ),
         child: BottomNavigationBar(
           currentIndex: currentIndex,
+          onTap: onTap,
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
           selectedItemColor: AppColors.primaryColor,
           unselectedItemColor: Colors.grey,
           elevation: 0,
-          onTap: (index) {
-            if (index == currentIndex) return;
-            
-            Widget page;
-            switch (index) {
-              case 0:
-                page = const HomeView();
-                break;
-              case 1:
-                page = const SearchView();
-                break;
-              case 2:
-                page = const HistoryView();
-                break;
-              case 3:
-                page = const ProfileView();
-                break;
-              default:
-                return;
-            }
-
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => page,
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  const begin = 0.0;
-                  const end = 1.0;
-                  const curve = Curves.easeInOut;
-                  var tween = Tween(begin: begin, end: end).chain(
-                    CurveTween(curve: curve),
-                  );
-                  return FadeTransition(
-                    opacity: animation.drive(tween),
-                    child: child,
-                  );
-                },
-                transitionDuration: const Duration(milliseconds: 200),
-              ),
-            );
-          },
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -106,4 +64,4 @@ class BottomNavigation extends StatelessWidget {
       ),
     );
   }
-} 
+}

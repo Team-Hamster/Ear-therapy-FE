@@ -1,7 +1,9 @@
+// lib/features/result/views/result_view.dart
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/database/database_helper.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'dart:io';
 
 class ResultView extends StatelessWidget {
   final int resultId;
@@ -99,17 +101,28 @@ class ResultView extends StatelessWidget {
                                 thickness: 1,
                               ),
                               const SizedBox(height: 20),
-                              Center(
-                                child: Container(
-                                  width: 250,
-                                  height: 250,
+                              Container(
+                                width: double.infinity,
+                                height: 300,
+                                decoration: BoxDecoration(
                                   color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.photo,
-                                    color: Colors.grey,
-                                    size: 100,
-                                  ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                                child: result['photo'] != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.file(
+                                          File(result['photo']),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : const Center(
+                                        child: Icon(
+                                          Icons.photo,
+                                          color: Colors.grey,
+                                          size: 100,
+                                        ),
+                                      ),
                               ),
                               const SizedBox(height: 20),
                               Container(
@@ -139,30 +152,12 @@ class ResultView extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8.0),
                                       child: Text(
-                                        '${result['memo'] ?? '없음'}',
+                                        result['memo'] ?? '없음',
                                         style: const TextStyle(
                                           fontSize: 16,
                                           color: Colors.black54,
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit, color: AppColors.primaryColor, size: 20),
-                                          onPressed: () {
-                                            // 수정 로직 추가
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                                          onPressed: () {
-                                            // 삭제 로직 추가
-                                          },
-                                        ),
-                                      ],
                                     ),
                                   ],
                                 ),

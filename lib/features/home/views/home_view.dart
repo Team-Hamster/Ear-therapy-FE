@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/features/home/views/widgets/symptom_button.dart';
-import 'package:ear_fe/shared/widgets/bottom_navigation.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -70,7 +69,6 @@ class HomeView extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavigation(currentIndex: 0),
     );
   }
-} 
+}

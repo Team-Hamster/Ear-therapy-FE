@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
-import 'package:ear_fe/shared/widgets/bottom_navigation.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -28,7 +27,6 @@ class ProfileView extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavigation(currentIndex: 3),
     );
   }
-} 
+}

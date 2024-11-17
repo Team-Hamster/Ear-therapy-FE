@@ -83,7 +83,6 @@ class DatabaseHelper {
   }
 
   Future<void> insertInitialData() async {
-    // 데이터베이스가 비어있을 때만 초기 데이터 삽입
     if (!await isDatabaseEmpty()) {
       return;
     }
@@ -142,97 +141,40 @@ class DatabaseHelper {
     }
   }
 
-  // 데이터베이스 초기화를 위한 메서드
   Future<void> initializeDatabase() async {
     final db = await database;
     await insertInitialData();
     await insertDummyResults();
   }
 
-  // 더미 데이터 삽입 메서드
   Future<void> insertDummyResults() async {
     final db = await database;
 
-    // '감기' 증상의 id 조회
-    final List<Map<String, dynamic>> coldSymptomMaps = await db.query(
-      'symptoms',
-      where: 'name = ?',
-      whereArgs: ['감기'],
-    );
-
-    // '열' 증상의 id 조회
-    final List<Map<String, dynamic>> feverSymptomMaps = await db.query(
-      'symptoms',
-      where: 'name = ?',
-      whereArgs: ['열'],
-    );
-
-    // '어지럼증' 증상의 id 조회
-    final List<Map<String, dynamic>> dizzinessSymptomMaps = await db.query(
-      'symptoms',
-      where: 'name = ?',
-      whereArgs: ['어지럼증'],
-    );
-
-    // 감기 증상 추가
-    if (coldSymptomMaps.isNotEmpty) {
-      final int symptomId = coldSymptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1,
-          'symptom_id': symptomId,
-          'date': DateTime(2024, 11, 16).toIso8601String(),
-          'title': '감기 증상',
-          'memo': '감기 증상이 나타났습니다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-
-    // 열 증상 추가
-    if (feverSymptomMaps.isNotEmpty) {
-      final int symptomId = feverSymptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1,
-          'symptom_id': symptomId,
-          'date': DateTime(2024, 11, 17).toIso8601String(),
-          'title': '발열 증상',
-          'memo': '열이 올라왔습니다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-
-    // 어지럼증 증상 추가
-    if (dizzinessSymptomMaps.isNotEmpty) {
-      final int symptomId = dizzinessSymptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1,
-          'symptom_id': symptomId,
-          'date': DateTime(2024, 11, 18).toIso8601String(),
-          'title': '어지럼증',
-          'memo': '어지럼증이 발생했습니다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    final List<Map<String, dynamic>> symptoms = await db.query('symptoms');
+    
+    for (var symptom in symptoms) {
+      if (['감기', '열', '어지럼증'].contains(symptom['name'])) {
+        await db.insert(
+          'results',
+          {
+            'user_id': 1,
+            'symptom_id': symptom['id'],
+            'date': DateTime.now().toIso8601String(),
+            'title': '${symptom['name']} 증상',
+            'memo': '${symptom['name']} 증상이 나타났습니다.',
+            'photo': null,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
     }
   }
 
-  // 모든 증상 조회
   Future<List<Map<String, dynamic>>> getAllSymptoms() async {
     final db = await database;
     return await db.query('symptoms', orderBy: 'name');
   }
 
-  // 특정 사용자 조회
   Future<Map<String, dynamic>?> getUser(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(
@@ -243,7 +185,6 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first : null;
   }
 
-  // 특정 사용자의 모든 진단 결과 조회 (증상 이름 포함)
   Future<List<Map<String, dynamic>>> getUserResults(int userId) async {
     final db = await database;
     final List<Map<String, dynamic>> results = await db.rawQuery('''
@@ -259,7 +200,6 @@ class DatabaseHelper {
     return results;
   }
 
-  // 특정 진단 결과 상세 조회
   Future<Map<String, dynamic>?> getResultDetail(int resultId) async {
     final db = await database;
     final List<Map<String, dynamic>> results = await db.rawQuery('''
@@ -276,7 +216,6 @@ class DatabaseHelper {
     return results.isNotEmpty ? results.first : null;
   }
 
-  // 데이터베이스의 모든 테이블 데이터 조회 (디버깅용)
   Future<void> printAllData() async {
     final db = await database;
     
@@ -293,61 +232,53 @@ class DatabaseHelper {
     print(results);
   }
 
-  // 데이터베이스 삭제
   Future<void> deleteDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'ear_database.db');
     await databaseFactory.deleteDatabase(path);
-    _database = null;  // 데이터베이스 인스턴스 초기화
+    _database = null;
   }
 
-  // 데이터베이스 초기화 (삭제 후 재생성)
   Future<void> resetDatabase() async {
     await deleteDatabase();
-    await database;  // 새로운 데이터베이스 생성
-    await insertInitialData();  // 초기 데이터 한 번만 삽입
+    await database;
+    await insertInitialData();
   }
 
-  Future<void> insertSymptom(String symptom, String date, String? title, String? content) async {
+  Future<int> insertResult({
+    required String symptomName,
+    required String date,
+    String? memo,
+    String? photo,
+  }) async {
     final db = await database;
 
-    // 새로운 증상 데이터 추가
-    await db.insert(
-        'symptoms',
-        {
-            'symptom': symptom,
-            'date': date,
-            'title': title,
-            'content': content,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<void> insertNewResult() async {
-    final db = await database;
-
-    // '감기' 증상의 id 조회
+    // 1. symptom_id 조회
     final List<Map<String, dynamic>> symptomMaps = await db.query(
       'symptoms',
       where: 'name = ?',
-      whereArgs: ['감기'],
+      whereArgs: [symptomName],
     );
 
-    if (symptomMaps.isNotEmpty) {
-      final int symptomId = symptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1,
-          'symptom_id': symptomId,
-          'date': DateTime.now().toIso8601String(),
-          'title': '감기 증상',
-          'memo': '감기 증상이 나타났습니다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    if (symptomMaps.isEmpty) {
+      throw Exception('Symptom not found: $symptomName');
     }
+
+    final int symptomId = symptomMaps.first['id'];
+
+    // 2. results 테이블에 데이터 삽입
+    final resultId = await db.insert(
+      'results',
+      {
+        'user_id': 1,  // 현재는 고정값 사용
+        'symptom_id': symptomId,
+        'date': date,
+        'memo': memo,
+        'photo': photo,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    return resultId;
   }
-} 
+}

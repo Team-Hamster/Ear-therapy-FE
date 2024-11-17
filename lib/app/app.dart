@@ -1,6 +1,7 @@
+// lib/app/app.dart
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
-import 'package:ear_fe/features/home/views/home_view.dart';
+import 'package:ear_fe/features/main/views/main_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -14,7 +15,7 @@ class App extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.backgroundColor,
         useMaterial3: true,
       ),
-      home: const HomeView(),
+      home: const MainScreen(),
     );
   }
-} 
+}

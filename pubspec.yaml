@@ -98,3 +98,5 @@ flutter:
 
   assets:
     - assets/icon_images/
+    - assets/search_images/
+
