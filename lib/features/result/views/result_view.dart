@@ -1,4 +1,3 @@
-// lib/features/result/views/result_view.dart
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/database/database_helper.dart';
@@ -89,7 +88,7 @@ class ResultView extends StatelessWidget {
                                     formattedDate,
                                     style: const TextStyle(
                                       fontSize: 14,
-                                      color: Colors.grey,
+                                      color: AppColors.accentColor,
                                     ),
                                   ),
                                 ],
@@ -127,6 +126,8 @@ class ResultView extends StatelessWidget {
                               const SizedBox(height: 20),
                               Container(
                                 padding: const EdgeInsets.all(16),
+                                width: double.infinity,
+                                height: 200,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(10),
@@ -149,13 +150,17 @@ class ResultView extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Text(
-                                        result['memo'] ?? '없음',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black54,
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(left: 8.0),
+                                          child: Text(
+                                            result['memo'] ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),

@@ -38,13 +38,15 @@ class HomeView extends StatelessWidget {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(left: 32, top: 32, bottom: 16),
-              child: Text(
-                '증상 선택',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              padding: EdgeInsets.only(top: 32, bottom: 16),
+              child: Center(
+                child: Text(
+                  '증상 선택',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
             ),
