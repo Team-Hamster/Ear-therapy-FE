@@ -104,7 +104,7 @@ class _HistoryViewState extends State<HistoryView> {
                                 itemBuilder: (context, index) {
                                   final result = snapshot.data![index];
                                   final date = DateTime.parse(result['date']);
-                                  final formattedDate = DateFormat('yy.MM.dd EEE').format(date);
+                                  final formattedDate = DateFormat('MM.dd EEE').format(date);
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
