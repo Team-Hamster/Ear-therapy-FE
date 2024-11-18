@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
+import 'package:ear_fe/database/database_helper.dart'; // DatabaseHelper 가져오기
 
-class ProfileView extends StatelessWidget {
+class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
+
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  String userName = '';
+  String userGender = '';
+  String userAge = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final dbHelper = DatabaseHelper.instance;
+    final user = await dbHelper.getLastUser(); // 마지막 사용자 정보 가져오기
+
+    if (user != null) {
+      setState(() {
+        userName = user['name'];
+        userGender = user['gender'] == 'M' ? '남성' : '여성'; // 성별 변환
+        userAge = user['age'].toString();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +67,30 @@ class ProfileView extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      '김이혈',
-                      style: TextStyle(
+                      userName.isNotEmpty ? userName : '이름을 불러오는 중...',
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Female',
-                      style: TextStyle(
+                      userGender.isNotEmpty ? userGender : '성별을 불러오는 중...',
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '23',
-                      style: TextStyle(
+                      userAge.isNotEmpty ? userAge : '나이를 불러오는 중...',
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
                       ),
                     ),
                     const SizedBox(height: 30),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(height: 30),
                     Container(
                       decoration: BoxDecoration(
@@ -69,11 +98,11 @@ class ProfileView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.edit,
-                          color: AppColors.accentColor
+                          color: AppColors.accentColor,
                         ),
-                        title: Text('프로필 편집'),
+                        title: const Text('프로필 편집'),
                         onTap: () {
                           // Navigate to profile edit screen
                         },
@@ -86,11 +115,11 @@ class ProfileView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.announcement,
-                          color: AppColors.accentColor
-                          ),
-                        title: Text('공지사항'),
+                          color: AppColors.accentColor,
+                        ),
+                        title: const Text('공지사항'),
                         onTap: () {
                           // Navigate to notices screen
                         },
@@ -103,11 +132,11 @@ class ProfileView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.settings,
-                          color: AppColors.accentColor
-                          ),
-                        title: Text('Settings'),
+                          color: AppColors.accentColor,
+                        ),
+                        title: const Text('Settings'),
                         onTap: () {
                           // Navigate to settings screen
                         },

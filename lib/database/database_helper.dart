@@ -289,4 +289,40 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  Future<void> deleteAllUsers() async {
+    final db = await database;
+    await db.delete('users'); // 모든 사용자 데이터 삭제
+  }
+
+  Future<int> insertUser({
+    required String name,
+    required int age,
+    required String gender,
+  }) async {
+    final db = await database;
+
+    // 기존 사용자 데이터 삭제
+    await deleteAllUsers();
+
+    return await db.insert(
+      'users',
+      {
+        'name': name,
+        'age': age,
+        'gender': gender,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getLastUser() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'users',
+      orderBy: 'id DESC', // ID 기준으로 내림차순 정렬
+      limit: 1, // 가장 최근 사용자 1명만 가져오기
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
 }

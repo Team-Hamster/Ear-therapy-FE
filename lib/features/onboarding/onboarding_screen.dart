@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ear_fe/features/home/views/home_view.dart'; // 홈 화면으로 이동
+import 'package:ear_fe/features/main/views/main_screen.dart'; // MainScreen으로 변경
+import 'package:ear_fe/database/database_helper.dart'; // DatabaseHelper 가져오기
 
 class OnboardingScreen extends StatefulWidget {
   @override
@@ -117,14 +118,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               .map(
                                 (age) => DropdownMenuItem(
                                   value: age,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0), // 아이템 여유 공간
-                                    child: Text(
-                                      age,
-                                      style: const TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 20, // 텍스트 크기 키움
-                                      ),
+                                  child: Text(
+                                    age,
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 20, // 텍스트 크기 키움
                                     ),
                                   ),
                                 ),
@@ -170,14 +168,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               .map(
                                 (gender) => DropdownMenuItem(
                                   value: gender,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0), // 아이템 여유 공간
-                                    child: Text(
-                                      gender,
-                                      style: const TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 20, // 텍스트 크기 키움
-                                      ),
+                                  child: Text(
+                                    gender,
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 20, // 텍스트 크기 키움
                                     ),
                                   ),
                                 ),
@@ -198,11 +193,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       const SizedBox(height: 30),
                       ElevatedButton(
-                        onPressed: () {
-                          // 홈 화면으로 이동
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => HomeView()),
-                          );
+                        onPressed: () async {
+                          // 사용자 정보를 데이터베이스에 저장
+                          if (nameController.text.isNotEmpty && selectedAge != null && selectedGender != null) {
+                            final dbHelper = DatabaseHelper.instance;
+
+                            // 성별 변환
+                            String genderValue = selectedGender == '남성' ? 'M' : 'F';
+
+                            await dbHelper.insertUser(
+                              name: nameController.text,
+                              age: int.parse(selectedAge!),
+                              gender: genderValue, // 변환된 성별 값 사용
+                            );
+
+                            // 홈 화면으로 이동
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (context) => MainScreen()), // MainScreen으로 변경
+                            );
+                          } else {
+                            // 입력이 누락된 경우 사용자에게 알림
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('모든 정보를 입력하세요.')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF7B46D0),
