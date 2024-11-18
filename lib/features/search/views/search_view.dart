@@ -31,7 +31,7 @@ class SearchView extends StatefulWidget {
         hasSearched = false;
       } else {
         searchResults = allImages
-            .where((image) => image['name']!.contains(query))
+            .where((image) => image['name'] == query)
             .toList();
         hasSearched = true;
       }
@@ -186,9 +186,9 @@ Widget build(BuildContext context) {
                         borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
                           searchResults[0]['image']!,
-                          width: double.infinity,
+                          width: 400,
                           height: 400,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
