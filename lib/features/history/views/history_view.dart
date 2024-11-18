@@ -12,23 +12,27 @@ class HistoryView extends StatefulWidget {
 }
 
 class _HistoryViewState extends State<HistoryView> {
+  late Future<List<Map<String, dynamic>>> _userResultsFuture;
+
   @override
   void initState() {
     super.initState();
-    DatabaseHelper.instance.printAllData();
+    _userResultsFuture = _fetchUserResults(); // 사용자 결과를 가져오는 Future 초기화
   }
 
-  Future<void> _checkData() async {
-    await DatabaseHelper.instance.printAllData();
+  Future<List<Map<String, dynamic>>> _fetchUserResults() async {
+    final dbHelper = DatabaseHelper.instance;
+    final user = await dbHelper.getLastUser(); // 마지막 사용자 정보 가져오기
+    if (user != null) {
+      return await dbHelper.getUserResults(user['id']); // 해당 사용자의 결과 가져오기
+    }
+    return [];
   }
 
-  void addNewSymptom() async {
-    await DatabaseHelper.instance.insertResult(
-      symptomName: '어지럼증',
-      date: '2024.11.18',
-      memo: null,
-      photo: null,
-    );
+  void _refreshResults() {
+    setState(() {
+      _userResultsFuture = _fetchUserResults(); // 결과 새로고침
+    });
   }
 
   @override
@@ -43,13 +47,23 @@ class _HistoryViewState extends State<HistoryView> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               color: AppColors.white,
-              child: const Text(
-                'History',
-                style: TextStyle(
-                  color: AppColors.primaryColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'History',
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    color: AppColors.primaryColor,
+                    onPressed: _refreshResults, // 새로고침 기능
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -87,7 +101,7 @@ class _HistoryViewState extends State<HistoryView> {
                         const SizedBox(height: 20),
                         Expanded(
                           child: FutureBuilder<List<Map<String, dynamic>>>(
-                            future: DatabaseHelper.instance.getUserResults(1),
+                            future: _userResultsFuture, // 사용자 결과 가져오기
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const Center(child: CircularProgressIndicator());
@@ -138,7 +152,9 @@ class _HistoryViewState extends State<HistoryView> {
 
                                         if (confirm == true) {
                                           await DatabaseHelper.instance.deleteResult(result['id']);
-                                          setState(() {});
+                                          setState(() {
+                                            _userResultsFuture = _fetchUserResults(); // 결과 삭제 후 데이터 새로고침
+                                          });
                                         }
                                       },
                                       child: Container(

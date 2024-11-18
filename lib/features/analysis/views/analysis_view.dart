@@ -31,7 +31,7 @@ class _AnalysisViewState extends State<AnalysisView> {
         symptomName: widget.symptomName,
         date: DateTime.now().toIso8601String(),
         memo: null,
-        photo: null, // TODO: 분석 결과 이미지 경로로 대체
+        photo: widget.analysisImage.path, // 사진 경로 저장
       );
 
       if (context.mounted) {

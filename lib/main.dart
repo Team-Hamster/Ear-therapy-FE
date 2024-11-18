@@ -11,7 +11,8 @@ void main() async {
   final isFirstRun = prefs.getBool('first_run') ?? true;
   
   if (isFirstRun) {
-    await DatabaseHelper.instance.resetDatabase();  // 데이터베이스 초기화 및 초기 데이터 삽입
+    await DatabaseHelper.instance.resetDatabase();  // 데이터베이스 초기화
+    await DatabaseHelper.instance.insertInitialData(); // 초기 데이터 삽입
     await prefs.setBool('first_run', false);  // 최초 실행 표시
   }
   

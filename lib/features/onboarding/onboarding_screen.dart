@@ -211,6 +211,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (context) => MainScreen()), // MainScreen으로 변경
                             );
+
+                            // 결과 데이터의 user_id 업데이트
+                            final lastUser = await dbHelper.getLastUser();
+                            if (lastUser != null) {
+                              await dbHelper.updateUserIdInResults(lastUser['id']);
+                            }
                           } else {
                             // 입력이 누락된 경우 사용자에게 알림
                             ScaffoldMessenger.of(context).showSnackBar(
