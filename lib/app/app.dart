@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/features/main/views/main_screen.dart';
+import 'package:ear_fe/features/splash/splash_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -16,7 +17,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'SejongHospital',
       ),
-      home: const MainScreen(),
+      home: SplashScreen(),
     );
   }
 }
