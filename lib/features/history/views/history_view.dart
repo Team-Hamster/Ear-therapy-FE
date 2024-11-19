@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/database/database_helper.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'package:intl/intl.dart';
 import 'package:ear_fe/features/result/views/result_view.dart';
 
 class HistoryView extends StatefulWidget {
@@ -17,22 +17,22 @@ class _HistoryViewState extends State<HistoryView> {
   @override
   void initState() {
     super.initState();
-    _userResultsFuture = _fetchUserResults(); // 사용자 결과를 가져오는 Future 초기화
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchUserResults() async {
-    final dbHelper = DatabaseHelper.instance;
-    final user = await dbHelper.getLastUser(); // 마지막 사용자 정보 가져오기
-    if (user != null) {
-      return await dbHelper.getUserResults(user['id']); // 해당 사용자의 결과 가져오기
-    }
-    return [];
+    _refreshResults();
   }
 
   void _refreshResults() {
     setState(() {
-      _userResultsFuture = _fetchUserResults(); // 결과 새로고침
+      _userResultsFuture = _fetchUserResults();
     });
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchUserResults() async {
+    final dbHelper = DatabaseHelper.instance;
+    final user = await dbHelper.getLastUser();
+    if (user != null) {
+      return await dbHelper.getUserResults(user['id']);
+    }
+    return [];
   }
 
   @override
@@ -61,7 +61,7 @@ class _HistoryViewState extends State<HistoryView> {
                   IconButton(
                     icon: const Icon(Icons.refresh),
                     color: AppColors.primaryColor,
-                    onPressed: _refreshResults, // 새로고침 기능
+                    onPressed: _refreshResults,
                   ),
                 ],
               ),
@@ -101,15 +101,18 @@ class _HistoryViewState extends State<HistoryView> {
                         const SizedBox(height: 20),
                         Expanded(
                           child: FutureBuilder<List<Map<String, dynamic>>>(
-                            future: _userResultsFuture, // 사용자 결과 가져오기
+                            future: _userResultsFuture,
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const Center(child: CircularProgressIndicator());
                               }
-                              
+
                               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                                 return const Center(
-                                  child: Text('진단 결과가 없습니다.'),
+                                  child: Text(
+                                    '진단 결과가 없습니다.',
+                                    style: TextStyle(color: Colors.black54, fontSize: 16),
+                                  ),
                                 );
                               }
 
@@ -119,6 +122,8 @@ class _HistoryViewState extends State<HistoryView> {
                                   final result = snapshot.data![index];
                                   final date = DateTime.parse(result['date']);
                                   final formattedDate = DateFormat('MM.dd EEE').format(date);
+
+                                  final symptomName = result['symptom_name'] ?? 'Unknown symptom';
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
@@ -152,9 +157,7 @@ class _HistoryViewState extends State<HistoryView> {
 
                                         if (confirm == true) {
                                           await DatabaseHelper.instance.deleteResult(result['id']);
-                                          setState(() {
-                                            _userResultsFuture = _fetchUserResults(); // 결과 삭제 후 데이터 새로고침
-                                          });
+                                          _refreshResults();
                                         }
                                       },
                                       child: Container(
@@ -180,7 +183,7 @@ class _HistoryViewState extends State<HistoryView> {
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Text(
-                                                        result['symptom_name'],
+                                                        symptomName,
                                                         style: const TextStyle(
                                                           fontSize: 18,
                                                           fontWeight: FontWeight.bold,
@@ -198,7 +201,7 @@ class _HistoryViewState extends State<HistoryView> {
                                                     ],
                                                   ),
                                                 ),
-                                                if (result['title'] != null || result['memo'] != null)
+                                                if (result['memo'] != null)
                                                   Padding(
                                                     padding: const EdgeInsets.only(right: 8),
                                                     child: Image.asset(

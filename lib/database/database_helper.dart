@@ -25,7 +25,6 @@ class DatabaseHelper {
   }
 
   Future<void> _createDB(Database db, int version) async {
-    // users 테이블 생성
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +36,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // symptoms 테이블 생성
     await db.execute('''
       CREATE TABLE symptoms (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +43,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // results 테이블 생성
     await db.execute('''
       CREATE TABLE results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,25 +57,33 @@ class DatabaseHelper {
       )
     ''');
 
-    // 인덱스 생성
-    await db.execute(
-      'CREATE INDEX idx_results_user_id ON results(user_id)'
-    );
-    await db.execute(
-      'CREATE INDEX idx_results_symptom_id ON results(symptom_id)'
-    );
+    await db.execute('CREATE INDEX idx_results_user_id ON results(user_id)');
+    await db.execute('CREATE INDEX idx_results_symptom_id ON results(symptom_id)');
   }
 
-  Future<void> close() async {
-    final db = await instance.database;
-    db.close();
-  }
-
-  Future<void> resetDatabase() async {
+  Future<void> insertInitialData() async {
     final db = await database;
-    await db.delete('users'); // 모든 사용자 데이터 삭제
-    await db.delete('symptoms'); // 모든 증상 데이터 삭제
-    await db.delete('results'); // 모든 결과 데이터 삭제
+
+    await db.insert(
+      'users',
+      {
+        'name': '기본 사용자',
+        'age': 25,
+        'gender': 'F',
+        'photo': null,
+        'created_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+
+    const symptoms = ['감기', '스트레스', '열', '어지럼증', '두통', '집중력', '코피', '생리통', '빈뇨'];
+    for (final symptom in symptoms) {
+      await db.insert(
+        'symptoms',
+        {'name': symptom},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
   }
 
   Future<int> insertUser({
@@ -94,6 +99,8 @@ class DatabaseHelper {
         'name': name,
         'age': age,
         'gender': gender,
+        'photo': null,
+        'created_at': DateTime.now().toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -107,24 +114,27 @@ class DatabaseHelper {
   }) async {
     final db = await database;
 
-    // 1. symptom_id 조회
     final List<Map<String, dynamic>> symptomMaps = await db.query(
       'symptoms',
       where: 'name = ?',
       whereArgs: [symptomName],
     );
 
+    int symptomId;
     if (symptomMaps.isEmpty) {
-      throw Exception('Symptom not found: $symptomName');
+      symptomId = await db.insert(
+        'symptoms',
+        {'name': symptomName},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    } else {
+      symptomId = symptomMaps.first['id'];
     }
 
-    final int symptomId = symptomMaps.first['id'];
-
-    // 2. results 테이블에 데이터 삽입
-    final resultId = await db.insert(
+    return await db.insert(
       'results',
       {
-        'user_id': 1,  // 현재는 고정값 사용
+        'user_id': 1,
         'symptom_id': symptomId,
         'date': date,
         'memo': memo,
@@ -132,9 +142,32 @@ class DatabaseHelper {
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    return resultId;
   }
+
+  Future<Map<String, dynamic>?> getLastUser() async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      orderBy: 'id DESC',
+      limit: 1,
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+Future<List<Map<String, dynamic>>> getUserResults(int userId) async {
+  final db = await database;
+  final List<Map<String, dynamic>> results = await db.rawQuery('''
+    SELECT 
+      r.*, 
+      s.name as symptom_name
+    FROM results r
+    JOIN symptoms s ON r.symptom_id = s.id
+    WHERE r.user_id = ?
+    ORDER BY r.date DESC
+  ''', [userId]);
+
+  return results;
+}
 
   Future<void> updateUserIdInResults(int userId) async {
     final db = await database;
@@ -142,34 +175,8 @@ class DatabaseHelper {
       'results',
       {'user_id': userId},
       where: 'user_id = ?',
-      whereArgs: [1], // 기존 사용자 ID를 1로 가정
+      whereArgs: [1],
     );
-  }
-
-  Future<Map<String, dynamic>?> getLastUser() async {
-    final db = await database;
-    final List<Map<String, dynamic>> result = await db.query(
-      'users',
-      orderBy: 'id DESC', // ID 기준으로 내림차순 정렬
-      limit: 1, // 가장 최근 사용자 1명만 가져오기
-    );
-    return result.isNotEmpty ? result.first : null;
-  }
-
-  Future<void> printAllData() async {
-    final db = await database;
-    
-    print('\n=== Users ===');
-    final users = await db.query('users');
-    print(users);
-    
-    print('\n=== Symptoms ===');
-    final symptoms = await db.query('symptoms');
-    print(symptoms);
-    
-    print('\n=== Results ===');
-    final results = await db.query('results');
-    print(results);
   }
 
   Future<void> deleteResult(int id) async {
@@ -181,26 +188,21 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getUserResults(int userId) async {
+  Future<void> updateResultMemo(int resultId, String memo) async {
     final db = await database;
-    final List<Map<String, dynamic>> results = await db.rawQuery(''' 
-      SELECT 
-        r.*,
-        s.name as symptom_name
-      FROM results r
-      JOIN symptoms s ON r.symptom_id = s.id
-      WHERE r.user_id = ?
-      ORDER BY r.date DESC
-    ''', [userId]);
-    
-    return results;
+    await db.update(
+      'results',
+      {'memo': memo},
+      where: 'id = ?',
+      whereArgs: [resultId],
+    );
   }
 
   Future<Map<String, dynamic>?> getResultDetail(int resultId) async {
     final db = await database;
-    final List<Map<String, dynamic>> results = await db.rawQuery(''' 
+    final results = await db.rawQuery('''
       SELECT 
-        r.*,
+        r.*, 
         s.name as symptom_name,
         u.name as user_name
       FROM results r
@@ -208,61 +210,19 @@ class DatabaseHelper {
       JOIN users u ON r.user_id = u.id
       WHERE r.id = ?
     ''', [resultId]);
-    
+
     return results.isNotEmpty ? results.first : null;
   }
 
-  Future<void> insertInitialData() async {
+  Future<void> resetDatabase() async {
     final db = await database;
+    await db.delete('users');
+    await db.delete('symptoms');
+    await db.delete('results');
+  }
 
-    // 1. symptoms 데이터 삽입
-    final List<String> symptoms = [
-      '감기', '스트레스', '열', '어지럼증', '두통', 
-      '집중력', '생리통', '빈뇨'
-    ];
-
-    for (String symptom in symptoms) {
-      await db.insert(
-        'symptoms',
-        {'name': symptom},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
-    }
-
-    // 2. user 데이터 삽입
-    await db.insert(
-      'users',
-      {
-        'name': '김이혈', // 기존 데이터 삭제
-        'age': 22,
-        'gender': 'F',
-        'photo': null,
-        'created_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-
-    // 3. result 데이터 삽입
-    final List<Map<String, dynamic>> symptomMaps = await db.query(
-      'symptoms',
-      where: 'name = ?',
-      whereArgs: ['감기'],
-    );
-    
-    if (symptomMaps.isNotEmpty) {
-      final int symptomId = symptomMaps.first['id'];
-      await db.insert(
-        'results',
-        {
-          'user_id': 1, // 고정된 사용자 ID
-          'symptom_id': symptomId,
-          'date': DateTime(2024, 11, 19).toIso8601String(), // 고정된 날짜
-          'title': '이침 후 첫 기록',
-          'memo': '어제 저녁 혈자리에 패치를 붙이고 잤더니 감기 증상이 호전되었다.',
-          'photo': null,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
+  Future<void> close() async {
+    final db = await instance.database;
+    db.close();
   }
 }
