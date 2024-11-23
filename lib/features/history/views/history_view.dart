@@ -122,7 +122,6 @@ class _HistoryViewState extends State<HistoryView> {
                                   final result = snapshot.data![index];
                                   final date = DateTime.parse(result['date']);
                                   final formattedDate = DateFormat('MM.dd EEE').format(date);
-
                                   final symptomName = result['symptom_name'] ?? 'Unknown symptom';
 
                                   return Padding(
@@ -132,7 +131,8 @@ class _HistoryViewState extends State<HistoryView> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ResultView(resultId: result['id']),
+                                            builder: (context) =>
+                                                ResultView(resultId: result['id']),
                                           ),
                                         );
                                       },
@@ -175,7 +175,8 @@ class _HistoryViewState extends State<HistoryView> {
                                         child: Material(
                                           color: Colors.transparent,
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 16, horizontal: 24),
                                             child: Row(
                                               children: [
                                                 Expanded(
@@ -201,7 +202,8 @@ class _HistoryViewState extends State<HistoryView> {
                                                     ],
                                                   ),
                                                 ),
-                                                if (result['memo'] != null)
+                                                if (result['memo'] != null &&
+                                                    result['memo'].isNotEmpty)
                                                   Padding(
                                                     padding: const EdgeInsets.only(right: 8),
                                                     child: Image.asset(

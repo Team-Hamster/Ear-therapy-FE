@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:ear_fe/core/constants/colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:ear_fe/database/database_helper.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/features/analysis/views/analysis_view.dart';
 
 class UploadView extends StatefulWidget {
   final String symptomName;
 
-  const UploadView({
-    super.key,
-    required this.symptomName,
-  });
+  const UploadView({Key? key, required this.symptomName}) : super(key: key);
 
   @override
   State<UploadView> createState() => _UploadViewState();
@@ -23,6 +20,41 @@ class _UploadViewState extends State<UploadView> {
   File? _image;
   final ImagePicker _picker = ImagePicker();
   bool _isAnalyzing = false;
+  String _serverStatus = "Checking server status...";
+
+  @override
+  void initState() {
+    super.initState();
+    pingServer(); // 앱 시작 시 서버 상태 확인
+  }
+
+  Future<void> pingServer() async {
+    try {
+      final url = Uri.parse("http://192.168.0.165:5000/ping"); // 서버의 /ping 엔드포인트
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          setState(() {
+            _serverStatus = "Server is running.";
+          });
+        } else {
+          setState(() {
+            _serverStatus = "Server responded, but not operational.";
+          });
+        }
+      } else {
+        setState(() {
+          _serverStatus = "Server error: ${response.statusCode}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _serverStatus = "Failed to connect to server: $e";
+      });
+    }
+  }
 
   Future<void> _requestCameraPermission() async {
     final status = await Permission.camera.request();
@@ -34,7 +66,7 @@ class _UploadViewState extends State<UploadView> {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('카메라 권한 필요'),
-            content: const Text('귀 사진을 촬영하기 위해 카메라 권한이 필요합니다.'),
+            content: const Text('사진 촬영을 위해 카메라 권한이 필요합니다.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -57,9 +89,6 @@ class _UploadViewState extends State<UploadView> {
       setState(() {
         _image = File(photo.path);
       });
-      if (context.mounted) {
-        Navigator.pop(context); // 바텀시트 닫기
-      }
     }
   }
 
@@ -69,24 +98,18 @@ class _UploadViewState extends State<UploadView> {
         source: ImageSource.gallery,
         imageQuality: 80,
       );
-      
       if (image != null) {
         setState(() {
           _image = File(image.path);
         });
-        if (context.mounted) {
-          Navigator.pop(context);
-        }
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('이미지를 불러오는데 실패했습니다.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('이미지를 불러오는데 실패했습니다.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -94,7 +117,7 @@ class _UploadViewState extends State<UploadView> {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('귀 사진을 먼저 촬영해주세요'),
+          content: Text('사진을 선택하거나 촬영해주세요'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -106,38 +129,43 @@ class _UploadViewState extends State<UploadView> {
     });
 
     try {
-      // TODO: AI 서비스 호출
-      // final resultImage = await AIService.analyzeEarImage(_image!);
-      
-      // 임시 딜레이 (실제 구현 시 제거)
-      await Future.delayed(const Duration(seconds: 2));
+      final url = Uri.parse("http://192.168.0.165:5000/analyze"); // 서버 주소
+      final request = http.MultipartRequest('POST', url);
 
-      if (context.mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AnalysisView(
-              symptomName: widget.symptomName,
-              analysisImage: _image!,
+      request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
+      request.fields['symptom'] = widget.symptomName;
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final data = json.decode(responseBody);
+
+        if (data['status'] == 'success') {
+          final resultImageUrl = data['result_image']; // 서버에서 받은 결과 이미지 경로
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnalysisView(
+                symptomName: widget.symptomName,
+                analysisImageUrl: resultImageUrl, // 이미지 URL 전달
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          throw Exception(data['message']);
+        }
+      } else {
+        throw Exception("서버 에러: ${response.statusCode}");
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('분석 중 오류가 발생했습니다. 다시 시도해주세요.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('분석 중 오류가 발생했습니다: $e')),
+      );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isAnalyzing = false;
-        });
-      }
+      setState(() {
+        _isAnalyzing = false;
+      });
     }
   }
 
@@ -157,7 +185,7 @@ class _UploadViewState extends State<UploadView> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () => _requestCameraPermission(),
+                onTap: _requestCameraPermission,
                 child: Container(
                   height: 120,
                   margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -196,7 +224,7 @@ class _UploadViewState extends State<UploadView> {
             ),
             Expanded(
               child: GestureDetector(
-                onTap: () => _pickImage(),
+                onTap: _pickImage,
                 child: Container(
                   height: 120,
                   margin: const EdgeInsets.symmetric(horizontal: 10),

@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
-import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:ear_fe/database/database_helper.dart';
 import 'package:ear_fe/features/main/views/main_screen.dart';
 
 class AnalysisView extends StatefulWidget {
-  final String symptomName;
-  final File analysisImage;
+  final String symptomName; // 증상 이름
+  final String analysisImageUrl; // AI 분석 이미지 URL
 
   const AnalysisView({
     Key? key,
     required this.symptomName,
-    required this.analysisImage,
+    required this.analysisImageUrl,
   }) : super(key: key);
 
   @override
@@ -20,7 +19,7 @@ class AnalysisView extends StatefulWidget {
 }
 
 class _AnalysisViewState extends State<AnalysisView> {
-  bool _isSaving = false;
+  bool _isSaving = false; // 저장 중 상태 관리
 
   Future<void> _saveResult() async {
     setState(() {
@@ -28,13 +27,33 @@ class _AnalysisViewState extends State<AnalysisView> {
     });
 
     try {
+      // 사용자 정보 가져오기
+      final lastUser = await DatabaseHelper.instance.getLastUser();
+      if (lastUser == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('사용자 정보가 없습니다.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+
+      final userId = lastUser['id']; // 사용자 ID
+      final currentDate = DateTime.now().toIso8601String(); // 현재 날짜
+
+      // 결과 데이터 저장
       await DatabaseHelper.instance.insertResult(
+        userId: userId,
         symptomName: widget.symptomName,
-        date: DateTime.now().toIso8601String(),
-        memo: null,
-        photo: widget.analysisImage.path,
+        date: currentDate,
+        photo: widget.analysisImageUrl,
+        memo: "", // 빈값으로 메모 저장
       );
 
+      // 성공 메시지 및 화면 이동
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -43,20 +62,20 @@ class _AnalysisViewState extends State<AnalysisView> {
           ),
         );
 
-        // 기존 스택을 모두 제거하고 메인 화면으로 이동
+        // 메인 화면으로 이동
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MainScreen()),
-          (route) => false,  // 모든 이전 라우트 제거
+          (route) => false,
         );
       }
     } catch (e) {
-      print('Error saving result: $e');
+      // 에러 처리
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('결과 저장 중 오류가 발생했습니다. 다시 시도해주세요.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text('결과 저장 중 오류가 발생했습니다: $e'),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -78,6 +97,7 @@ class _AnalysisViewState extends State<AnalysisView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 상단 바
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -103,6 +123,8 @@ class _AnalysisViewState extends State<AnalysisView> {
                 ],
               ),
             ),
+
+            // 분석 결과 이미지와 정보
             Padding(
               padding: const EdgeInsets.all(20),
               child: Container(
@@ -117,6 +139,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // 저장 버튼
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -153,57 +176,59 @@ class _AnalysisViewState extends State<AnalysisView> {
                                 ),
                         ],
                       ),
+
                       const SizedBox(height: 20),
-                      Center(
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 224,
-                              height: 224,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE0E0E0),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  widget.analysisImage,
-                                  width: 224,
-                                  height: 224,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 40),
-                            Text(
-                              widget.symptomName,
-                              style: const TextStyle(
-                                fontSize: 23,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              dateFormat.format(analysisDate),
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+
+                      // 분석 이미지
+                      Container(
+                        width: 224,
+                        height: 224,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0E0E0),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            widget.analysisImageUrl,
+                            width: 224,
+                            height: 224,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+
+                      const SizedBox(height: 40),
+
+                      // 증상 이름과 날짜
+                      Text(
+                        widget.symptomName,
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        dateFormat.format(analysisDate),
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
+
             const SizedBox(height: 30),
+
+            // 추가 안내 문구
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Center(
