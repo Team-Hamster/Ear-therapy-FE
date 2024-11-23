@@ -30,7 +30,7 @@ class _UploadViewState extends State<UploadView> {
 
   Future<void> pingServer() async {
     try {
-      final url = Uri.parse("http://192.168.0.165:5000/ping"); // 서버의 /ping 엔드포인트
+      final url = Uri.parse("http://192.168.0.165:5000/ping");
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -129,7 +129,7 @@ class _UploadViewState extends State<UploadView> {
     });
 
     try {
-      final url = Uri.parse("http://192.168.0.165:5000/analyze"); // 서버 주소
+      final url = Uri.parse("http://192.168.0.165:5000/analyze");
       final request = http.MultipartRequest('POST', url);
 
       request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
@@ -142,13 +142,13 @@ class _UploadViewState extends State<UploadView> {
         final data = json.decode(responseBody);
 
         if (data['status'] == 'success') {
-          final resultImageUrl = data['result_image']; // 서버에서 받은 결과 이미지 경로
+          final resultImageUrl = data['result_image'];
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => AnalysisView(
                 symptomName: widget.symptomName,
-                analysisImageUrl: resultImageUrl, // 이미지 URL 전달
+                analysisImageUrl: resultImageUrl,
               ),
             ),
           );
@@ -186,83 +186,54 @@ class _UploadViewState extends State<UploadView> {
             Expanded(
               child: GestureDetector(
                 onTap: _requestCameraPermission,
-                child: Container(
-                  height: 120,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.camera_alt,
-                        color: AppColors.primaryColor,
-                        size: 40,
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        '카메라 촬영',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildOption("카메라 촬영", Icons.camera_alt),
               ),
             ),
             Expanded(
               child: GestureDetector(
                 onTap: _pickImage,
-                child: Container(
-                  height: 120,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.photo_library,
-                        color: AppColors.primaryColor,
-                        size: 40,
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        '파일 선택',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildOption("파일 선택", Icons.photo_library),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOption(String title, IconData icon) {
+    return Container(
+      height: 120,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: AppColors.primaryColor,
+            size: 40,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -359,29 +330,29 @@ class _UploadViewState extends State<UploadView> {
                         const SizedBox(height: 20),
                         Container(
                           width: double.infinity,
-                          height: 300,
+                          height: 280,
                           decoration: BoxDecoration(
                             color: const Color(0xFFE0E0E0),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: _image != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _image != null
+                                ? Image.file(
                                     _image!,
                                     fit: BoxFit.cover,
-                                  ),
-                                )
-                              : const Center(
-                                  child: Text(
-                                    '귀 사진을 촬영해주세요',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.w500,
+                                  )
+                                : const Center(
+                                    child: Text(
+                                      '귀 사진을 촬영해주세요',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                         const Spacer(),
                         Center(

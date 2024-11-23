@@ -129,7 +129,7 @@ class _AnalysisViewState extends State<AnalysisView> {
               padding: const EdgeInsets.all(20),
               child: Container(
                 width: double.infinity,
-                height: 450,
+                height: 500,
                 decoration: BoxDecoration(
                   color: AppColors.secondaryColor,
                   borderRadius: BorderRadius.circular(20),
@@ -181,8 +181,10 @@ class _AnalysisViewState extends State<AnalysisView> {
 
                       // 분석 이미지
                       Container(
-                        width: 224,
-                        height: 224,
+                        width: double.infinity,
+                        height: 280,
+                        //width: 224,
+                        //height: 224,
                         decoration: BoxDecoration(
                           color: const Color(0xFFE0E0E0),
                           borderRadius: BorderRadius.circular(12),
@@ -226,7 +228,7 @@ class _AnalysisViewState extends State<AnalysisView> {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
 
             // 추가 안내 문구
             Padding(
