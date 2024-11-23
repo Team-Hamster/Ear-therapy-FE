@@ -103,7 +103,8 @@ class DatabaseHelper {
     String? photo,
   }) async {
     final db = await database;
-
+    print('Inserting result: photo path = $photo, date = $date');
+    
     // 증상 ID 가져오기
     final List<Map<String, dynamic>> symptomMaps = await db.query(
       'symptoms',
@@ -123,12 +124,16 @@ class DatabaseHelper {
       symptomId = symptomMaps.first['id'];
     }
 
+    // 로컬 시간으로 저장
+    final localDate = DateTime.parse(date).toLocal().toIso8601String();
+
     // 결과 삽입
     return await db.insert(
       'results',
       {
         'user_id': userId,
         'symptom_id': symptomId,
+        'date': localDate, // 로컬 시간 저장
         'memo': memo,
         'photo': photo,
       },
@@ -197,7 +202,14 @@ class DatabaseHelper {
       WHERE r.id = ?
     ''', [resultId]);
 
-    return results.isNotEmpty ? results.first : null;
+    if (results.isNotEmpty) {
+        final result = results.first;
+        print('Result Photo: ${result['photo']}'); // 로그 추가
+        return result;
+    } else {
+        print('No result found for ID: $resultId'); // 결과 없음 로그 추가
+        return null;
+    }
   }
 
   // 데이터베이스 리셋

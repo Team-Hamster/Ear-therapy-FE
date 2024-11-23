@@ -42,13 +42,13 @@ class _AnalysisViewState extends State<AnalysisView> {
       }
 
       final userId = lastUser['id']; // 사용자 ID
-      final currentDate = DateTime.now().toIso8601String(); // 현재 날짜
+      final currentDate = DateTime.now().toLocal().toIso8601String(); // 현재 날짜
 
       // 결과 데이터 저장
       await DatabaseHelper.instance.insertResult(
         userId: userId,
         symptomName: widget.symptomName,
-        date: currentDate,
+        date: currentDate, // 로컬 시간 저장
         photo: widget.analysisImageUrl,
         memo: "", // 빈값으로 메모 저장
       );

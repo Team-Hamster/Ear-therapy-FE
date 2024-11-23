@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/database/database_helper.dart';
-import 'package:intl/intl.dart' show DateFormat;
-import 'dart:io';
+import 'package:intl/intl.dart';
+import 'dart:io' show File, Platform;
 
 class ResultView extends StatefulWidget {
   final int resultId;
@@ -14,9 +14,10 @@ class ResultView extends StatefulWidget {
 }
 
 class _ResultViewState extends State<ResultView> {
-  late Map<String, dynamic> result;
+  Map<String, dynamic>? result;
   late String memo;
-  bool isEditing = false; // 수정 모드 여부
+  TextEditingController? _memoController;
+  bool isEditing = false;
 
   @override
   void initState() {
@@ -29,21 +30,33 @@ class _ResultViewState extends State<ResultView> {
     if (data != null) {
       setState(() {
         result = data;
-        memo = result['memo'] ?? ''; // MEMO 초기화
+        memo = result!['memo'] ?? '';
+        _memoController = TextEditingController(text: memo);
       });
     }
   }
 
   Future<void> _saveMemo() async {
-    await DatabaseHelper.instance.updateResultMemo(widget.resultId, memo); // MEMO 업데이트
-    setState(() {
-      isEditing = false; // 수정 모드 종료
-    });
+    if (_memoController != null) {
+      await DatabaseHelper.instance.updateResultMemo(widget.resultId, _memoController!.text);
+      setState(() {
+        isEditing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('메모가 저장되었습니다!')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final date = DateTime.parse(result['date']);
+    if (result == null || _memoController == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final date = DateTime.parse(result!['date']).toLocal();
     final formattedDate = DateFormat('yy.MM.dd EEE').format(date);
 
     return Scaffold(
@@ -56,7 +69,7 @@ class _ResultViewState extends State<ResultView> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               color: AppColors.white,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start, // 왼쪽 정렬
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -75,7 +88,7 @@ class _ResultViewState extends State<ResultView> {
                     ),
                   ),
                   const Spacer(),
-                  if (isEditing) // 수정 중일 때만 저장 버튼 표시
+                  if (isEditing)
                     IconButton(
                       icon: const Icon(Icons.save, color: AppColors.primaryColor),
                       onPressed: _saveMemo,
@@ -104,7 +117,7 @@ class _ResultViewState extends State<ResultView> {
                               Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: Text(
-                                  result['symptom_name'],
+                                  result!['symptom_name'],
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -134,21 +147,7 @@ class _ResultViewState extends State<ResultView> {
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: result['photo'] != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.file(
-                                      File(result['photo']),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : const Center(
-                                    child: Icon(
-                                      Icons.photo,
-                                      color: Colors.grey,
-                                      size: 100,
-                                    ),
-                                  ),
+                            child: _buildImageWidget(),
                           ),
                           const SizedBox(height: 20),
                           Container(
@@ -180,25 +179,22 @@ class _ResultViewState extends State<ResultView> {
                                 Expanded(
                                   child: TextField(
                                     maxLines: null,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       border: InputBorder.none,
                                       hintText: '메모를 입력하세요...',
-                                      hintStyle: const TextStyle(
+                                      hintStyle: TextStyle(
                                         color: Colors.grey,
                                       ),
                                     ),
+                                    controller: _memoController,
                                     onTap: () {
-                                      // 수정 모드 활성화
                                       setState(() {
                                         isEditing = true;
                                       });
                                     },
                                     onChanged: (value) {
-                                      setState(() {
-                                        memo = value; // MEMO 업데이트
-                                      });
+                                      memo = value;
                                     },
-                                    controller: TextEditingController(text: memo), // 초기값 설정
                                   ),
                                 ),
                               ],
@@ -216,5 +212,55 @@ class _ResultViewState extends State<ResultView> {
         ),
       ),
     );
+  }
+
+  Widget _buildImageWidget() {
+    final photoUrl = result!['photo'];
+
+    if (photoUrl == null) {
+      return const Center(
+        child: Icon(
+          Icons.photo,
+          color: Colors.grey,
+          size: 100,
+        ),
+      );
+    }
+
+    if (photoUrl.startsWith('http')) {
+      // 네트워크 URL 처리
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          photoUrl,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      // 모바일 환경에서 로컬 파일 처리
+      if (File(photoUrl).existsSync()) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(photoUrl),
+            fit: BoxFit.cover,
+          ),
+        );
+      }
+    }
+
+    return const Center(
+      child: Icon(
+        Icons.photo,
+        color: Colors.grey,
+        size: 100,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _memoController?.dispose();
+    super.dispose();
   }
 }

@@ -120,8 +120,8 @@ class _HistoryViewState extends State<HistoryView> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (context, index) {
                                   final result = snapshot.data![index];
-                                  final date = DateTime.parse(result['date']);
-                                  final formattedDate = DateFormat('MM.dd EEE').format(date);
+                                  final date = DateTime.parse(result['date']).toLocal();
+                                  final formattedDate = DateFormat('yy.MM.dd EEE').format(date);
                                   final symptomName = result['symptom_name'] ?? 'Unknown symptom';
 
                                   return Padding(
@@ -196,7 +196,7 @@ class _HistoryViewState extends State<HistoryView> {
                                                         formattedDate.toUpperCase(),
                                                         style: const TextStyle(
                                                           fontSize: 14,
-                                                          color: Colors.black54,
+                                                          color: AppColors.accentColor, // 날짜 색상 변경
                                                         ),
                                                       ),
                                                     ],
