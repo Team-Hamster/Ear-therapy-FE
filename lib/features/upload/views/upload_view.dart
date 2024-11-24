@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/features/analysis/views/analysis_view.dart';
+import 'package:ear_fe/features/loading/views/loading_view.dart'; // 로딩 화면 import
 
 class UploadView extends StatefulWidget {
   final String symptomName;
@@ -54,6 +55,24 @@ class _UploadViewState extends State<UploadView> {
         _serverStatus = "Failed to connect to server: $e";
       });
     }
+  }
+
+  Future<void> _analyzeImage() async {
+    if (_image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('사진을 선택하거나 촬영해주세요'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // 로딩 뷰로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoadingView()),
+    );
   }
 
   Future<void> _requestCameraPermission() async {
@@ -110,62 +129,6 @@ class _UploadViewState extends State<UploadView> {
           duration: Duration(seconds: 2),
         ),
       );
-    }
-  }
-
-  Future<void> _analyzeImage() async {
-    if (_image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('사진을 선택하거나 촬영해주세요'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _isAnalyzing = true;
-    });
-
-    try {
-      final url = Uri.parse("http://192.168.0.165:5000/analyze");
-      final request = http.MultipartRequest('POST', url);
-
-      request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
-      request.fields['symptom'] = widget.symptomName;
-
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        final responseBody = await response.stream.bytesToString();
-        final data = json.decode(responseBody);
-
-        if (data['status'] == 'success') {
-          final resultImageUrl = data['result_image'];
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AnalysisView(
-                symptomName: widget.symptomName,
-                analysisImageUrl: resultImageUrl,
-              ),
-            ),
-          );
-        } else {
-          throw Exception(data['message']);
-        }
-      } else {
-        throw Exception("서버 에러: ${response.statusCode}");
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('분석 중 오류가 발생했습니다: $e')),
-      );
-    } finally {
-      setState(() {
-        _isAnalyzing = false;
-      });
     }
   }
 
