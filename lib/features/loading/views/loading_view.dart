@@ -26,9 +26,9 @@ class LoadingView extends StatelessWidget {
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: AppColors.accentColor, // 텍스트 색상 설정
+                color: Colors.black,
               ),
-              textAlign: TextAlign.center, // 중앙 정렬
+              textAlign: TextAlign.center,
             ),
           ],
         ),
