@@ -51,7 +51,7 @@ class SymptomButton extends StatelessWidget {
             style: const TextStyle(
               color: Colors.black,
               fontSize: 15,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

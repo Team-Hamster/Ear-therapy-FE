@@ -43,12 +43,14 @@ class _HistoryViewState extends State<HistoryView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 상단바
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 20), // 패딩 조정
               color: AppColors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center, // 중앙 정렬
                 children: [
                   const Text(
                     'History',
@@ -58,10 +60,17 @@ class _HistoryViewState extends State<HistoryView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    color: AppColors.primaryColor,
-                    onPressed: _refreshResults,
+                  InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: _refreshResults,
+                    child: const Padding(
+                      padding: EdgeInsets.all(8), // 터치 영역 최소화
+                      child: Icon(
+                        Icons.refresh,
+                        color: AppColors.primaryColor,
+                        size: 24, // 아이콘 크기 조정
+                      ),
+                    ),
                   ),
                 ],
               ),

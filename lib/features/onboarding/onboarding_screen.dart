@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ear_fe/core/constants/colors.dart';
 import 'package:ear_fe/features/main/views/main_screen.dart';
 import 'package:ear_fe/database/database_helper.dart';
 
@@ -67,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF7B46D0), // 시작하기 버튼 색상과 동일
+                                color: AppColors.primaryColor
                               ),
                             ),
                             TextSpan(
@@ -204,7 +205,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7B46D0),
+                          backgroundColor: AppColors.primaryColor,
                           minimumSize: const Size(double.infinity, 60), // 버튼 너비를 화면 너비로 설정
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
