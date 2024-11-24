@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 10), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => OnboardingScreen()),
       );
@@ -30,8 +30,8 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             SvgPicture.asset(
               'assets/logo.svg',
-              width: 100,
-              height: 100,
+              width: 120,
+              height: 120,
             ),
             const SizedBox(height: 20),
             Column(
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const Text(
                   'Ear Therapy',
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 27,
                     fontWeight: FontWeight.bold,
                     color: AppColors.accentColor,
                   ),
@@ -48,17 +48,17 @@ class _SplashScreenState extends State<SplashScreen> {
                 const Text(
                   'Ease and flow',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.accentColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFA087BB),
                   ),
                 ),
                 const Text(
                   'from ear to toe',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.accentColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFA087BB),
                   ),
                 ),
               ],
