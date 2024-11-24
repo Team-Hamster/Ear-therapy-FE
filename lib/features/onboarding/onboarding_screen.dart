@@ -19,47 +19,75 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         FocusScope.of(context).unfocus(); // 키보드 숨기기
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF2C2043),
+        backgroundColor: const Color(0xFFF5F5F5), // 배경색 변경
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center, // 가운데 정렬
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'ᆞ',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  const SizedBox(height: 40), // 전체적으로 아래로 이동
+                  // 환영합니다 텍스트
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16.0), // 왼쪽 여백 추가
+                    child: Align(
+                      alignment: Alignment.centerLeft, // 왼쪽 정렬
+                      child: Text(
+                        '환영합니다',
+                        style: TextStyle(
+                          fontSize: 32, // 더 큰 폰트 크기
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black, // 검은색 텍스트
                         ),
-                        TextSpan(
-                          text: '이침요법',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFDDC2E9),
-                          ),
-                        ),
-                        TextSpan(
-                          text: '으로 관리하는 건강 라이프ᆞ',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
+                  // 설명 텍스트
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0), // 왼쪽 여백 추가
+                    child: Align(
+                      alignment: Alignment.centerLeft, // 왼쪽 정렬
+                      child: RichText(
+                        textAlign: TextAlign.left, // 텍스트도 왼쪽 정렬
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'ᆞ',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '이침요법',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF7B46D0), // 시작하기 버튼 색상과 동일
+                              ),
+                            ),
+                            TextSpan(
+                              text: '으로 관리하는 건강 라이프ᆞ',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 50), // 추가 여백
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // 이름 입력
                       Container(
                         width: double.infinity,
                         height: 70,
@@ -83,6 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // 나이 선택
                       Container(
                         width: double.infinity,
                         height: 70,
@@ -97,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             'Age',
                             style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          items: List.generate(100, (index) => (index + 1).toString())
+                          items: List.generate(70 - 15 + 1, (index) => (index + 15).toString())
                               .map((age) => DropdownMenuItem(
                                     value: age,
                                     child: Text(
@@ -117,6 +146,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // 성별 선택
                       Container(
                         width: double.infinity,
                         height: 70,
@@ -150,7 +180,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           isExpanded: true,
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 50),
+                      // 시작하기 버튼
                       ElevatedButton(
                         onPressed: () async {
                           if (nameController.text.isNotEmpty && selectedAge != null && selectedGender != null) {
@@ -172,12 +203,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             );
                           }
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7B46D0)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7B46D0),
+                          minimumSize: const Size(double.infinity, 60), // 버튼 너비를 화면 너비로 설정
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
                         child: const Text(
                           '시작하기',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
+                      const SizedBox(height: 30), // 버튼 아래 여백 추가
                     ],
                   ),
                 ],
