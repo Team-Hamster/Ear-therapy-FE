@@ -161,7 +161,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             'Gender',
                             style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          items: ['남성', '여성']
+                          items: ['여성','남성']
                               .map((gender) => DropdownMenuItem(
                                     value: gender,
                                     child: Text(

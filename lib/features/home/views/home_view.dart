@@ -41,11 +41,11 @@ class HomeView extends StatelessWidget {
               padding: EdgeInsets.only(top: 32, bottom: 16),
               child: Center(
                 child: Text(
-                  '증상 선택',
+                  '증상을 선택해주세요',
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Color(0xFF333333),
                   ),
                 ),
               ),
