@@ -52,12 +52,12 @@ class HomeView extends StatelessWidget {
             ),
             Expanded(
               child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 6,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 0.9, // 버튼 비율 변경
                 ),
                 itemCount: symptoms.length,
                 itemBuilder: (context, index) {

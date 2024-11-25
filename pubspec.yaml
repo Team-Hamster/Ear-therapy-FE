@@ -104,6 +104,14 @@ flutter:
           weight: 300
         - asset: assets/fonts/SejongHospital-Bold.ttf
           weight: 700
+
+    - family: SUITE
+      fonts:
+        - asset: assets/fonts/SUITE-Medium.ttf
+          weight: 500         
+        - asset: assets/fonts/SUITE-Regular.ttf
+          weight: 600
+
   assets:
     - assets/icon_images/
     - assets/search_images/

@@ -27,7 +27,7 @@ class SymptomButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
@@ -39,23 +39,29 @@ class SymptomButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: Image.asset(
-              imagePath,
-              width: 55,
-              height: 55,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+            child: Column(
+              children: [
+                Image.asset(
+                  imagePath,
+                  width: 55,
+                  height: 55,
+                ),
+                const SizedBox(height: 8), // 아이콘과 텍스트 사이 간격
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14, // 텍스트 크기 조정
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'SUITE',
+                  ),
+                  textAlign: TextAlign.center, // 중앙 정렬
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
-} 
+}
