@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart'; // 크롭 기능 추가
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -31,7 +32,7 @@ class _UploadViewState extends State<UploadView> {
 
   Future<void> pingServer() async {
     try {
-      final url = Uri.parse("http://192.168.0.165:5000/ping");
+      final url = Uri.parse("http://192.168.0.165:5000/ping"); //서버의 ipv4주소와 일치시킬것.
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -87,9 +88,12 @@ class _UploadViewState extends State<UploadView> {
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
-      setState(() {
-        _image = File(photo.path);
-      });
+      final croppedFile = await _cropImage(File(photo.path)); // 크롭 기능 추가
+      if (croppedFile != null) {
+        setState(() {
+          _image = croppedFile;
+        });
+      }
       Navigator.pop(context); // Modal Bottom Sheet 닫기
     }
   }
@@ -101,9 +105,12 @@ class _UploadViewState extends State<UploadView> {
         imageQuality: 80,
       );
       if (image != null) {
-        setState(() {
-          _image = File(image.path);
-        });
+        final croppedFile = await _cropImage(File(image.path)); // 크롭 기능 추가
+        if (croppedFile != null) {
+          setState(() {
+            _image = croppedFile;
+          });
+        }
         Navigator.pop(context); // Modal Bottom Sheet 닫기
       }
     } catch (e) {
@@ -114,6 +121,43 @@ class _UploadViewState extends State<UploadView> {
         ),
       );
     }
+  }
+
+  Future<File?> _cropImage(File imageFile) async {
+    try {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: imageFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), // 1:1 비율
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: '분석에 필요한 귀 영역을 선택해주세요',
+            toolbarColor: AppColors.primaryColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: '분석에 필요한 귀 영역을 선택해주세요',
+            aspectRatioLockEnabled: true,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        setState(() {
+        _image = File(croppedFile.path); // 크롭된 이미지를 _image로 저장
+      });
+        return File(croppedFile.path);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이미지 크롭 실패: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+    return null;
   }
 
   Future<void> _analyzeImage() async {
@@ -127,7 +171,6 @@ class _UploadViewState extends State<UploadView> {
       return;
     }
 
-    // 로딩 화면으로 이동
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -136,7 +179,7 @@ class _UploadViewState extends State<UploadView> {
     );
 
     try {
-      final url = Uri.parse("http://192.168.0.165:5000/analyze");
+      final url = Uri.parse("http://:5000/analyze");
       final request = http.MultipartRequest('POST', url);
 
       request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
@@ -150,7 +193,6 @@ class _UploadViewState extends State<UploadView> {
 
         if (data['status'] == 'success') {
           final resultImageUrl = data['result_image'];
-          // 분석 결과 화면으로 이동
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -167,7 +209,7 @@ class _UploadViewState extends State<UploadView> {
         throw Exception("서버 에러: ${response.statusCode}");
       }
     } catch (e) {
-      Navigator.pop(context); // 로딩 화면 닫기
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('분석 중 오류가 발생했습니다: $e')),
       );
@@ -252,7 +294,6 @@ class _UploadViewState extends State<UploadView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 사진 업로드 제목
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -292,7 +333,6 @@ class _UploadViewState extends State<UploadView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 증상명 표시 (패딩 추가)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -339,7 +379,6 @@ class _UploadViewState extends State<UploadView> {
                           thickness: 1,
                         ),
                         const SizedBox(height: 20),
-                        // 이미지 업로드
                         Container(
                           width: double.infinity,
                           height: 280,
@@ -367,7 +406,7 @@ class _UploadViewState extends State<UploadView> {
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        SizedBox(height: 8), // 두 텍스트 사이의 간격
+                                        SizedBox(height: 8),
                                         Text(
                                           '혈자리를 분석하여 표시해드립니다.',
                                           style: TextStyle(
