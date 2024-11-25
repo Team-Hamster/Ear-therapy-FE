@@ -65,6 +65,7 @@ class _ResultViewState extends State<ResultView> {
       body: SafeArea(
         child: Column(
           children: [
+            // 상단바
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -90,9 +91,23 @@ class _ResultViewState extends State<ResultView> {
                   ),
                   const Spacer(),
                   if (isEditing)
-                    IconButton(
-                      icon: const Icon(Icons.save, color: AppColors.primaryColor),
+                    TextButton(
                       onPressed: _saveMemo,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        '저장하기',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                 ],
               ),
