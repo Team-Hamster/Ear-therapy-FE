@@ -90,6 +90,7 @@ class _UploadViewState extends State<UploadView> {
       setState(() {
         _image = File(photo.path);
       });
+      Navigator.pop(context); // Modal Bottom Sheet 닫기
     }
   }
 
@@ -103,6 +104,7 @@ class _UploadViewState extends State<UploadView> {
         setState(() {
           _image = File(image.path);
         });
+        Navigator.pop(context); // Modal Bottom Sheet 닫기
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -250,6 +252,7 @@ class _UploadViewState extends State<UploadView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 사진 업로드 제목
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -264,9 +267,9 @@ class _UploadViewState extends State<UploadView> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    widget.symptomName,
-                    style: const TextStyle(
+                  const Text(
+                    '사진 업로드',
+                    style: TextStyle(
                       color: AppColors.primaryColor,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -289,15 +292,19 @@ class _UploadViewState extends State<UploadView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 증상명 표시 (패딩 추가)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              '사진 업로드',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Text(
+                                widget.symptomName,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ),
                             if (_image != null)
@@ -332,6 +339,7 @@ class _UploadViewState extends State<UploadView> {
                           thickness: 1,
                         ),
                         const SizedBox(height: 20),
+                        // 이미지 업로드
                         Container(
                           width: double.infinity,
                           height: 280,
@@ -347,13 +355,29 @@ class _UploadViewState extends State<UploadView> {
                                     fit: BoxFit.cover,
                                   )
                                 : const Center(
-                                    child: Text(
-                                      '귀 사진을 촬영해주세요',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '귀 사진을 촬영해주세요',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black54,
+                                            fontFamily: 'SUITE',
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8), // 두 텍스트 사이의 간격
+                                        Text(
+                                          '혈자리를 분석하여 표시해드립니다.',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black54,
+                                            fontFamily: 'SUITE',
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                           ),

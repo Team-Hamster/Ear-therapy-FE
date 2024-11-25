@@ -103,145 +103,134 @@ class _AnalysisViewState extends State<AnalysisView> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               color: AppColors.white,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.arrow_back_ios,
-                      color: AppColors.primaryColor,
-                    ),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '분석결과',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    '분석결과',
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.primaryColor,
+                            ),
+                          ),
+                        )
+                      : TextButton(
+                          onPressed: _saveResult,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            '저장하기',
+                            style: TextStyle(
+                              color: AppColors.primaryColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
 
-            // 분석 결과 이미지와 정보
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Container(
-                width: double.infinity,
-                height: 500,
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+            // 분석 결과 이미지, 증상명, 날짜 컨테이너
+            Expanded(
+              child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // 저장 버튼
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(width: 16),
-                          _isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primaryColor,
-                                    ),
-                                  ),
-                                )
-                              : TextButton(
-                                  onPressed: _saveResult,
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: AppColors.primaryColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Save',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // 분석 이미지
                       Container(
-                        width: double.infinity,
-                        height: 280,
-                        //width: 224,
-                        //height: 224,
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0E0E0),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppColors.secondaryColor,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            widget.analysisImageUrl,
-                            width: 224,
-                            height: 224,
-                            fit: BoxFit.cover,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // 분석 이미지
+                            Container(
+                              width: double.infinity,
+                              height: 300,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0E0E0),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  widget.analysisImageUrl,
+                                  width: 224,
+                                  height: 224,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // 증상 이름과 날짜
+                            Text(
+                              '${widget.symptomName}에 좋은 혈자리입니다',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              dateFormat.format(analysisDate),
+                              style: const TextStyle(
+                                color: AppColors.accentColor,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 50),
 
-                      // 증상 이름과 날짜
+                      // 추가 안내 문구
                       Text(
-                        widget.symptomName,
+                        '해당 이혈 포인트에\n지압 패치를 붙이거나 혈자리를 자극해주세요',
                         style: const TextStyle(
-                          fontSize: 23,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        dateFormat.format(analysisDate),
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w800,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // 추가 안내 문구
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Center(
-                child: Text(
-                  '해당 이혈 포인트에\n지압 패치를 붙이거나 혈자리를 자극해주세요',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.w800,
-                  ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
