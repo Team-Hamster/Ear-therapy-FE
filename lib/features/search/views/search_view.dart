@@ -115,6 +115,8 @@ class _SearchViewState extends State<SearchView> {
                       hintStyle: TextStyle(
                         color: Colors.grey,
                         fontSize: 16,
+                        fontFamily: 'SUITE',
+                        fontWeight: FontWeight.w600,
                       ),
                       prefixIcon: Icon(Icons.search, color: Colors.grey),
                       contentPadding: EdgeInsets.symmetric(vertical: 15),
@@ -176,6 +178,8 @@ class _SearchViewState extends State<SearchView> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
+                                fontFamily: 'SUITE',
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),

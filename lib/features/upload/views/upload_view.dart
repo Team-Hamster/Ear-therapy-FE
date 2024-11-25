@@ -182,7 +182,7 @@ class _UploadViewState extends State<UploadView> {
         maxHeight: MediaQuery.of(context).size.height * 0.25,
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -232,8 +232,9 @@ class _UploadViewState extends State<UploadView> {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              fontFamily: 'SUITE',
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

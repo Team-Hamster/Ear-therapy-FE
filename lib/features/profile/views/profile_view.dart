@@ -36,33 +36,45 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.primaryColor),
+      ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              color: AppColors.white,
-              child: const Text(
-                'Profile',
-                style: TextStyle(
-                  color: AppColors.primaryColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 프로필 정보 컨테이너
+              Container(
                 padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
                     Center(
                       child: CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage('assets/icon_images/profile.png'),
+                        backgroundImage:
+                            const AssetImage('assets/icon_images/profile.png'),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -78,6 +90,8 @@ class _ProfileViewState extends State<ProfileView> {
                       userGender.isNotEmpty ? userGender : '성별을 불러오는 중...',
                       style: const TextStyle(
                         fontSize: 18,
+                        fontFamily: 'SUITE',
+                        fontWeight: FontWeight.w600,
                         color: Colors.grey,
                       ),
                     ),
@@ -86,68 +100,94 @@ class _ProfileViewState extends State<ProfileView> {
                       userAge.isNotEmpty ? userAge : '나이를 불러오는 중...',
                       style: const TextStyle(
                         fontSize: 18,
+                        fontFamily: 'SUITE',
+                        fontWeight: FontWeight.w600,
                         color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Divider(),
-                    const SizedBox(height: 30),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.edit,
-                          color: AppColors.accentColor,
-                        ),
-                        title: const Text('프로필 편집'),
-                        onTap: () {
-                          // Navigate to profile edit screen
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.announcement,
-                          color: AppColors.accentColor,
-                        ),
-                        title: const Text('공지사항'),
-                        onTap: () {
-                          // Navigate to notices screen
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.settings,
-                          color: AppColors.accentColor,
-                        ),
-                        title: const Text('Settings'),
-                        onTap: () {
-                          // Navigate to settings screen
-                        },
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 30),
+              // 프로필 편집 등 컨테이너
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildListRow(
+                      icon: Icons.edit,
+                      label: '프로필 편집',
+                      onTap: () {
+                        // Navigate to profile edit screen
+                      },
+                    ),
+                    const Divider(thickness: 1, height: 1), // 구분선
+                    _buildListRow(
+                      icon: Icons.announcement,
+                      label: '공지사항',
+                      onTap: () {
+                        // Navigate to notices screen
+                      },
+                    ),
+                    const Divider(thickness: 1, height: 1), // 구분선
+                    _buildListRow(
+                      icon: Icons.settings,
+                      label: 'Settings',
+                      onTap: () {
+                        // Navigate to settings screen
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildListRow({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      height: 60, // 행의 높이를 증가
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.accentColor),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'SUITE',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: onTap,
+            child: const Icon(
+              Icons.chevron_right, // 오른쪽 화살표 아이콘
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
