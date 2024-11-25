@@ -45,6 +45,7 @@ class _ResultViewState extends State<ResultView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('메모가 저장되었습니다!')),
       );
+      Navigator.pop(context, true); // 메모가 변경되었음을 반환
     }
   }
 
@@ -72,7 +73,7 @@ class _ResultViewState extends State<ResultView> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(context, isEditing), // 변경 사항 반환
                     child: const Icon(
                       Icons.arrow_back_ios,
                       color: AppColors.primaryColor,

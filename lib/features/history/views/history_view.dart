@@ -20,6 +20,7 @@ class _HistoryViewState extends State<HistoryView> {
     _refreshResults();
   }
 
+  /// 데이터 새로고침
   void _refreshResults() {
     setState(() {
       _userResultsFuture = _fetchUserResults();
@@ -46,33 +47,15 @@ class _HistoryViewState extends State<HistoryView> {
             // 상단바
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 20), // 패딩 조정
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               color: AppColors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center, // 중앙 정렬
-                children: [
-                  const Text(
-                    'History',
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: _refreshResults,
-                    child: const Padding(
-                      padding: EdgeInsets.all(8), // 터치 영역 최소화
-                      child: Icon(
-                        Icons.refresh,
-                        color: AppColors.primaryColor,
-                        size: 24, // 아이콘 크기 조정
-                      ),
-                    ),
-                  ),
-                ],
+              child: const Text(
+                'History',
+                style: TextStyle(
+                  color: AppColors.primaryColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Expanded(
@@ -112,15 +95,18 @@ class _HistoryViewState extends State<HistoryView> {
                           child: FutureBuilder<List<Map<String, dynamic>>>(
                             future: _userResultsFuture,
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
                               }
 
                               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                                 return const Center(
                                   child: Text(
-                                    '진단 결과가 없습니다.',
-                                    style: TextStyle(color: Colors.black54, fontSize: 16),
+                                    '분석 결과가 없습니다.',
+                                    style: TextStyle(
+                                        color: Colors.black54, fontSize: 16),
                                   ),
                                 );
                               }
@@ -129,35 +115,50 @@ class _HistoryViewState extends State<HistoryView> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (context, index) {
                                   final result = snapshot.data![index];
-                                  final date = DateTime.parse(result['date']).toLocal();
-                                  final formattedDate = DateFormat('yy.MM.dd EEE').format(date);
-                                  final symptomName = result['symptom_name'] ?? 'Unknown symptom';
+                                  final date = DateTime.parse(result['date'])
+                                      .toLocal();
+                                  final formattedDate =
+                                      DateFormat('yy.MM.dd EEE')
+                                          .format(date);
+                                  final symptomName = result['symptom_name'] ??
+                                      'Unknown symptom';
 
                                   return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
+                                    padding:
+                                        const EdgeInsets.only(bottom: 12),
                                     child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
+                                      onTap: () async {
+                                        final shouldRefresh =
+                                            await Navigator.push<bool>(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                ResultView(resultId: result['id']),
+                                            builder: (context) => ResultView(
+                                                resultId: result['id']),
                                           ),
                                         );
+
+                                        if (shouldRefresh == true) {
+                                          _refreshResults(); // 메모가 변경된 경우 새로고침
+                                        }
                                       },
                                       onLongPress: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             title: const Text('결과 삭제'),
-                                            content: const Text('해당 결과를 삭제하시겠습니까?'),
+                                            content: const Text(
+                                                '해당 결과를 삭제하시겠습니까?'),
                                             actions: [
                                               TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, false),
                                                 child: const Text('취소'),
                                               ),
                                               TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, true),
                                                 child: const Text('삭제'),
                                               ),
                                             ],
@@ -165,17 +166,22 @@ class _HistoryViewState extends State<HistoryView> {
                                         );
 
                                         if (confirm == true) {
-                                          await DatabaseHelper.instance.deleteResult(result['id']);
+                                          await DatabaseHelper.instance
+                                              .deleteResult(result['id']);
                                           _refreshResults();
                                         }
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: index % 2 == 0 ? Colors.white : AppColors.backgroundColor,
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: index % 2 == 0
+                                              ? Colors.white
+                                              : AppColors.backgroundColor,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withOpacity(0.1),
+                                              color: Colors.black
+                                                  .withOpacity(0.1),
                                               blurRadius: 4,
                                               offset: const Offset(0, 2),
                                             ),
@@ -184,28 +190,37 @@ class _HistoryViewState extends State<HistoryView> {
                                         child: Material(
                                           color: Colors.transparent,
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 16, horizontal: 24),
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 16,
+                                                    horizontal: 24),
                                             child: Row(
                                               children: [
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         symptomName,
                                                         style: const TextStyle(
                                                           fontSize: 18,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontFamily: 'SUITE',
                                                           color: Colors.black87,
                                                         ),
                                                       ),
-                                                      const SizedBox(height: 4),
+                                                      const SizedBox(
+                                                          height: 4),
                                                       Text(
-                                                        formattedDate.toUpperCase(),
+                                                        formattedDate
+                                                            .toUpperCase(),
                                                         style: const TextStyle(
                                                           fontSize: 14,
-                                                          color: AppColors.accentColor, // 날짜 색상 변경
+                                                          color: AppColors
+                                                              .accentColor,
                                                         ),
                                                       ),
                                                     ],
@@ -214,7 +229,9 @@ class _HistoryViewState extends State<HistoryView> {
                                                 if (result['memo'] != null &&
                                                     result['memo'].isNotEmpty)
                                                   Padding(
-                                                    padding: const EdgeInsets.only(right: 8),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 8),
                                                     child: Image.asset(
                                                       'assets/icon_images/note.png',
                                                       width: 20,
